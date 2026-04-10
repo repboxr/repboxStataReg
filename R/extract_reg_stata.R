@@ -39,10 +39,13 @@ rsr_extract_stata_reg_output = function(project_dir, run.df=NULL, dotab=NULL, sa
   regtab$ct = lapply(regtab$regresfile, function(file) {
     restore.point("inner.read.regres")
     regres = haven::read_dta(file)
-    old.cols = c("parm","label","estimate","stderr","dof", "z","p","min95","max95")
-    new.cols = c("var","label", "coef","se","dof", "t","p","ci_low","ci_up")
+    old.cols = c("eq","parm","label","estimate","stderr","dof", "z","p","min95","max95")
+    new.cols = c("eq","var","label", "coef","se","dof", "t","p","ci_low","ci_up")
     regres = rename.cols(regres, old.cols, new.cols)
-    regres = regres[,intersect(new.cols, colnames(regres))]
+    regres = regres[,intersect(new.cols, colnames(regres)), drop=FALSE]
+    if (!"eq" %in% colnames(regres)) {
+      regres$eq = rep("", NROW(regres))
+    }
     regres
   })
   regtab = select(regtab, -regresfile)
@@ -93,6 +96,7 @@ rsr_extract_stata_reg_output = function(project_dir, run.df=NULL, dotab=NULL, sa
 
   regtab
 }
+
 
 
 # Used to extract additional regression information
